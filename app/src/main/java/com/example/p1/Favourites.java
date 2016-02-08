@@ -80,7 +80,8 @@ public class Favourites extends android.support.v4.app.Fragment {
                         android.support.v4.app.Fragment fragment = new DetailsActivity();
                         fragment.setArguments(bundle);
                         android.support.v4.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.addToBackStack("Favorite added to Backstack");
+                        ft.addToBackStack("Favorite_Fragment");
+                        ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_in_left);
                         ft.replace(R.id.containerTablet,fragment);
                         ft.commit();
                     }

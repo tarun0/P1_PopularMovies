@@ -33,8 +33,6 @@ import java.util.List;
  */
 public class MostPopular extends android.support.v4.app.Fragment {
 
-    RetrievedValues[] retrievedValues;
-
     GridViewAdapter gridViewAdapter;
     GridView grid;
     List<RetrievedValues> retrievedValuesList = new ArrayList<>();
@@ -43,7 +41,6 @@ public class MostPopular extends android.support.v4.app.Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -65,7 +62,6 @@ public class MostPopular extends android.support.v4.app.Fragment {
 
             grid = (GridView) rootView.findViewById(R.id.griview_toprated);
             grid.setAdapter(gridViewAdapter);
-
         }
 
         else{
@@ -97,7 +93,6 @@ public class MostPopular extends android.support.v4.app.Fragment {
 
                 retrieved_values_objects[i] = new RetrievedValues(movie_title, movie_poster_link, movie_overview, movie_rating, movie_release_date, movie_background_link_path, movie_ID);
                 retrieved_values_objects[i].set_total_items(num_results);
-
             }
 
             Log.e("CHeck", retrieved_values_objects[19].get_rating());
@@ -168,9 +163,7 @@ public class MostPopular extends android.support.v4.app.Fragment {
 
             super.onPostExecute(retrievedValues);
             gridViewAdapter.clear();
-//            Log.e("PostExecute", retrievedValues[1].get_rating());
             gridViewAdapter.addAll(retrievedValues);
-            gridViewAdapter.notifyDataSetChanged();
 
             grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -193,7 +186,8 @@ public class MostPopular extends android.support.v4.app.Fragment {
 
                         fragment.setArguments(bundle);
                         FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.addToBackStack("Backstack Added!");
+                        ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_in_left);
+                        ft.addToBackStack("MostPopularFragment");
                         ft.replace(R.id.containerTablet, fragment);
                         ft.commit();
                     }

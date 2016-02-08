@@ -18,7 +18,7 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'TMDb_KEY', "\"YOUR_tmDB_API_KEY_HERE\""
+        it.buildConfigField 'String', 'TMDb_KEY', "\"YOUR_tmDB_API_KEY\""
     }
 }
 

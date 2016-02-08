@@ -32,13 +32,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * Created by Tarun on 31/12/2015.
- */
 public class TopRated extends android.support.v4.app.Fragment {
 
-    RetrievedValues[] retrievedValues;
     View rootView;
 
     GridViewAdapter gridViewAdapter;
@@ -48,7 +43,6 @@ public class TopRated extends android.support.v4.app.Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -199,7 +193,8 @@ public class TopRated extends android.support.v4.app.Fragment {
 
                         fragment.setArguments(bundle);
                         FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.addToBackStack("Backstack Added!");
+                        ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_in_left);
+                        ft.addToBackStack("TopRatedFragment");
                         ft.replace(R.id.containerTablet, fragment);
                         ft.commit();
                     }
@@ -214,7 +209,6 @@ public class TopRated extends android.support.v4.app.Fragment {
                         intent.putExtra("id", retrievedValuesList.get(i).getID());
                         getActivity().startActivity(intent);
                     }
-
                 }
             });
         }

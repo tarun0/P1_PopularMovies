@@ -1,9 +1,11 @@
 package com.example.p1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -34,8 +37,8 @@ import java.util.List;
 
 public class DetailsActivity extends android.support.v4.app.Fragment {
     boolean fab_state;
-    ArrayAdapter<String> reviewAdaptor;
-    ListView reviewListView;
+    ArrayAdapter<String> reviewAdaptor, trailerAdaptor;
+    ListView reviewListView, trailerListView;
     Context context;
     PostsDatabaseHelper db;
 
@@ -50,11 +53,6 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         db = new PostsDatabaseHelper(getActivity().getApplicationContext());
         View rootView = inflater.inflate(R.layout.activity_details, container, false);
-        // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //  setSupportActionBar(toolbar);
-
-        // assert getSupportActionBar() != null;
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mID = getArguments().getString("id");
         mTitle = getArguments().getString("title");
@@ -84,21 +82,11 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
 
                     Log.e("ISPRESENT",fab_state+"");
                     floatingActionButton.setImageDrawable(getResources().getDrawable(android.R.drawable.btn_star_big_on));
-                    //      db.insertMovies(intent.getStringExtra("id"), intent.getStringExtra("synopsis"),intent.getStringExtra("release_date"),
-                    //             intent.getStringExtra("rating"),intent.getStringExtra("title"), intent.getStringExtra("poster") );
-                    //    fab_state = db.ispresent(intent.getStringExtra("id"));
-                    Log.e("FAB CLICKED", "TRUE");
                     db.insertMovies(mID, mSynopsis, mRelDate, mRating, mTitle, mPoster);
-
                     fab_state = db.ispresent(mID);
-
-
-                    Log.e("Added to DB","State changed!!!!!!!!!!!!!!!!!");
                     
                 } else {
                     floatingActionButton.setImageDrawable(getResources().getDrawable(android.R.drawable.btn_star_big_off));
-                    //       db.deleteMovie(intent.getStringExtra("id"));
-                    //       fab_state = db.ispresent(intent.getStringExtra("id"));
                     db.deleteMovie(mID);
                     fab_state = db.ispresent(mID);
 
@@ -120,39 +108,32 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
         synHead.setText("Synopsis");
 
         TextView textView_title = (TextView) rootView.findViewById(R.id.textViewTitle);
-       // textView_title.setText(intent.getStringExtra("title"));
         textView_title.setText(mTitle);
 
         TextView textView_rating = (TextView) rootView.findViewById(R.id.textViewRating);
-       // textView_rating.setText(intent.getStringExtra("rating"));
         textView_rating.setText(mRating);
 
         TextView textView_ReleaseDate = (TextView) rootView.findViewById(R.id.textViewRelease);
-       // textView_ReleaseDate.setText(intent.getStringExtra("release_date"));
         textView_ReleaseDate.setText(mRelDate);
 
         TextView textView_Synopsis = (TextView) rootView.findViewById(R.id.textViewSynopsis);
-       // textView_Synopsis.setText(intent.getStringExtra("synopsis"));
         textView_Synopsis.setText(mSynopsis);
 
         ImageView posterImage = (ImageView) rootView.findViewById(R.id.detailPosterImageview);
-
-        // ImageView backgroundImage = (ImageView) findViewById(R.id.backgroundImageView);
-
-       // Picasso.with(getActivity().getApplicationContext()).load(intent.getStringExtra("poster")).into(posterImage);
         Picasso.with(getActivity().getApplicationContext()).load(mPoster).into(posterImage);
 
 
         reviewListView = (ListView) rootView.findViewById(R.id.listViewReview);
+        trailerListView= (ListView) rootView.findViewById(R.id.trailerListView);
 
         int[] colors = {0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
         reviewListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors));
         reviewListView.setDividerHeight(1);
 
 
-       // String url = "http://api.themoviedb.org/3/movie/" + intent.getStringExtra("id") + "/reviews?" +"api_key=" + BuildConfig.TMDb_KEY;
         String url = "http://api.themoviedb.org/3/movie/" + mID + "/reviews?" +"api_key=" + BuildConfig.TMDb_KEY;
-        Log.e("FetchRev", url);
+        String urlTrailer = "http://api.themoviedb.org/3/movie/" + mID + "/videos?" +"api_key=" + BuildConfig.TMDb_KEY;
+        Log.e("FetchRev", urlTrailer);
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -162,8 +143,17 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
             List<String> dummyList = new ArrayList<>();
             dummyList.add("A for apple");
             dummyList.add("B for ball");
-            new Reviewbackground().execute(url);
+
+            List<String> dummyList1 = new ArrayList<>();
+            dummyList1.add("A");
+            dummyList1.add("B");
             reviewAdaptor = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.review, R.id.reviewItemTextView, dummyList);
+            trailerAdaptor = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.trailer, R.id.trailerItem, dummyList1);
+
+            new Reviewbackground().execute(url);
+            new TrailerBackground().execute(urlTrailer);
+            reviewAdaptor.notifyDataSetChanged();
+            trailerAdaptor.notifyDataSetChanged();
         }
 
         else{
@@ -198,9 +188,6 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
 
             return review_object;
     }
-
-
-
 
         @Override
         protected Reviews doInBackground(String... params) {
@@ -263,11 +250,8 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
         public void onPostExecute(Reviews reviews){
 
             super.onPostExecute(reviews);
-
-            Log.e("---check---","!");
-
                 for (int p = 0; p< reviews.getReview().size(); p++){
-                    Log.e("R"+p , reviews.getAuthor().get(p));
+                    Log.e("R"+p , reviews.getAuthor().get(p)+"\n");
                 }
 
             reviewAdaptor.clear();
@@ -275,8 +259,104 @@ public class DetailsActivity extends android.support.v4.app.Fragment {
             reviewListView.setAdapter(reviewAdaptor);
             reviewAdaptor.notifyDataSetChanged();
 
-            Log.e("PostExecute", Integer.toString(reviews.getAuthor().size()));
+            Log.e("PostExecute", "Review onPOSTEXECUTE");
 
+        }
+    }
+
+    public class TrailerBackground extends AsyncTask<String, Void, Trailer>{
+
+        protected Trailer mretrievefromJSON (String jsonStr) throws JSONException{
+            JSONObject moviesJSON = new JSONObject(jsonStr);
+            JSONArray trailer_results = moviesJSON.getJSONArray("results");
+
+            int num_results = trailer_results.length();
+            Log.e("CHeck", jsonStr);
+            Trailer allTrailers = new Trailer();
+
+            for (int i = 0; i < num_results; i++) {
+                JSONObject trailerItem = trailer_results.getJSONObject(i);
+                allTrailers.addKey(allTrailers.toUrlString(trailerItem.getString("key")));
+                Log.e("Added Key", trailerItem.getString("key"));
+
+                allTrailers.addName(trailerItem.getString("name"));
+            }
+
+            return allTrailers;
+        }
+
+        @Override
+        protected Trailer doInBackground (String... params){
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String fetchedJSONStr = null;
+
+            try {
+                URL url = new URL(params[0]);
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                fetchedJSONStr = buffer.toString();
+            } catch (IOException e) {
+
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        try {
+                            return mretrievefromJSON(fetchedJSONStr);
+                        } catch (JSONException p) {
+                            Log.e("JSON Error", "Error parsing JSON", p);
+                        }
+                        reader.close();
+                    } catch (final IOException e) {
+                       Log.e(getActivity().getLocalClassName(), "JSON Parse IOException");
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void onPostExecute (final Trailer trailer){
+            super.onPostExecute(trailer);
+
+            trailerAdaptor.clear();
+            trailerAdaptor.addAll(trailer.getName());
+            trailerListView.setAdapter(trailerAdaptor);
+            trailerAdaptor.notifyDataSetChanged();
+
+            trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Uri uri = Uri.parse(trailer.getKey().get(i));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            });
         }
     }
 
