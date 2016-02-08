@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,8 +93,9 @@ public class MostPopular extends android.support.v4.app.Fragment {
                 String movie_overview = movie_details.getString("overview");
                 String movie_rating = movie_details.getString("vote_average");
                 String movie_release_date = movie_details.getString("release_date");
+                String movie_ID = movie_details.getString("id");
 
-                retrieved_values_objects[i] = new RetrievedValues(movie_title, movie_poster_link, movie_overview, movie_rating, movie_release_date, movie_background_link_path);
+                retrieved_values_objects[i] = new RetrievedValues(movie_title, movie_poster_link, movie_overview, movie_rating, movie_release_date, movie_background_link_path, movie_ID);
                 retrieved_values_objects[i].set_total_items(num_results);
 
             }
@@ -166,23 +168,47 @@ public class MostPopular extends android.support.v4.app.Fragment {
 
             super.onPostExecute(retrievedValues);
             gridViewAdapter.clear();
-            Log.e("PostExecute", retrievedValues[1].get_rating());
+//            Log.e("PostExecute", retrievedValues[1].get_rating());
             gridViewAdapter.addAll(retrievedValues);
             gridViewAdapter.notifyDataSetChanged();
 
             grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(rootView.getContext(), retrievedValuesList.get(i).get_title(), Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getActivity().getApplicationContext(), DetailsActivity.class);
-                    intent.putExtra("title", retrievedValuesList.get(i).get_title());
-                    intent.putExtra("rating", retrievedValuesList.get(i).get_rating());
-                    intent.putExtra("release_date", retrievedValuesList.get(i).get_release_date());
-                    intent.putExtra("poster",retrievedValuesList.get(i).get_poster_link().toString());
-                    intent.putExtra("background", retrievedValuesList.get(i).getBackground_link().toString());
-                    intent.putExtra("synopsis",retrievedValuesList.get(i).get_overview());
+                    android.support.v4.app.Fragment fragment = new DetailsActivity();
+                    Bundle bundle=new Bundle();
 
-                    startActivity(intent);
+                    Toast.makeText(rootView.getContext(), retrievedValuesList.get(i).get_title(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(getActivity().getApplicationContext(), DetailsActivityOnePane.class);
+
+                    if(MainActivity.mIsTablet){
+                        bundle.putString("title", retrievedValuesList.get(i).get_title());
+                        bundle.putString("rating", retrievedValuesList.get(i).get_rating());
+                        bundle.putString("release_date", retrievedValuesList.get(i).get_release_date());
+                        bundle.putString("poster", retrievedValuesList.get(i).get_poster_link().toString());
+                        bundle.putString("background", retrievedValuesList.get(i).getBackground_link().toString());
+                        bundle.putString("synopsis", retrievedValuesList.get(i).get_overview());
+                        bundle.putString("id", retrievedValuesList.get(i).getID());
+
+                        fragment.setArguments(bundle);
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.addToBackStack("Backstack Added!");
+                        ft.replace(R.id.containerTablet, fragment);
+                        ft.commit();
+                    }
+
+                    else{
+                        intent.putExtra("title", retrievedValuesList.get(i).get_title());
+                        intent.putExtra("rating", retrievedValuesList.get(i).get_rating());
+                        intent.putExtra("release_date", retrievedValuesList.get(i).get_release_date());
+                        intent.putExtra("poster", retrievedValuesList.get(i).get_poster_link().toString());
+                        intent.putExtra("background", retrievedValuesList.get(i).getBackground_link().toString());
+                        intent.putExtra("synopsis", retrievedValuesList.get(i).get_overview());
+                        intent.putExtra("id", retrievedValuesList.get(i).getID());
+                        getActivity().startActivity(intent);
+                    }
+
                 }
             });
         }

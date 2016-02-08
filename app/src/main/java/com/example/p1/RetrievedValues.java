@@ -16,6 +16,7 @@ public class RetrievedValues {
     private String rating;
     private String release_date;
     private URL background_link;
+    private String id;
 
     public RetrievedValues(RetrievedValues copy){
         original_title=copy.get_title();
@@ -25,13 +26,15 @@ public class RetrievedValues {
         release_date=copy.get_release_date();
         total_items=copy.get_total_items();
         background_link = copy.getBackground_link();
+        id = copy.getID();
     }
 
-    public RetrievedValues(String title, String poster_path, String over_view, String rate, String rel_date, String background_path){
+    public RetrievedValues(String title, String poster_path, String over_view, String rate, String rel_date, String background_path, String id){
         original_title = title;
         overview=over_view;
         rating = rate;
         release_date=rel_date;
+        this.id = id;
 
         setBackground_link(background_path);
         set_poster_link(poster_path);
@@ -40,6 +43,8 @@ public class RetrievedValues {
     public String get_title() {
         return original_title;
     }
+
+    public String getID(){ return id;}
 
     public  void set_title(String t){
         original_title = t;
@@ -72,6 +77,8 @@ public class RetrievedValues {
             Log.e("Background url","Construction error");
         }
     }
+
+    public void setID(String id){this.id = id;}
 
     public String get_overview() {
         return overview;

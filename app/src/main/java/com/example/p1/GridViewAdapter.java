@@ -1,7 +1,6 @@
 package com.example.p1;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,7 @@ public class GridViewAdapter extends ArrayAdapter <RetrievedValues> {
 
         ImageView poster = (ImageView) convertView.findViewById(R.id.imageView);
         Picasso.with(getContext()).load(getItem(position).get_poster_link().toString()).into(poster);
-        Log.e("adapter",getItem(position).get_poster_link().toString());
+       // Log.e("adapter",getItem(position).get_poster_link().toString());
         poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
         poster.setAdjustViewBounds(true);
         return convertView;

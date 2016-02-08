@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,14 +29,24 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    public static boolean mIsTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (findViewById(R.id.containerTablet) != null){
+            Toast.makeText(this, "Two Pane", Toast.LENGTH_SHORT).show();
+            mIsTablet = true;
+        } else mIsTablet = false;
+
+
+        if(!mIsTablet){
+            android.support.v7.widget.Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+        }
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -52,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+       // getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -94,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     fragment = new TopRated();
                     break;
+                case 2:
+                    fragment = new Favourites();
+                    break;
                 default:
                     Log.e("Fragment Creation", "Invalid position index");
                     fragment = null;
@@ -104,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
-            return 2;
+            // Total numbers of fragments to be shown in the main activity.
+            return 3;
         }
 
         @Override
@@ -115,6 +129,8 @@ public class MainActivity extends AppCompatActivity {
                     return "Most Popular";
                 case 1:
                     return "Highest Rated";
+                case 2:
+                    return "Favourites";
 
             }
             return null;
